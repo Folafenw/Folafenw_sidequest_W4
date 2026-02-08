@@ -1,34 +1,18 @@
 ## Project Title
 
-GBDA302 Week 4 Example 4: layable Maze (JSON + Level class + Player class)
-
----
-
-## Authors
-
-Karen Cochrane and David Han
+Sidequest Week 4: Level Generation
 
 ---
 
 ## Description
 
-Based on example 3, creates and positions the player using preloads and loadJSON files.
+This game loads three levels, the third including spikes. It allows the player to move through the maze and make their way to the goal while avoiding walls and spikes.
 
 ---
 
-## Learning Goals
+## Interaction Instructions
 
-Learning Goals:
-
-- Loads JSON levels (preload)
-- Builds Level objects
-- Creates/positions the Player
-- Handles input + level switching
-
-It is intentionally light on "details" because those are moved into:
-
-- Level.js (grid + drawing + tile meaning)
-- Player.js (position + movement rules)
+Use WASD or arrow keys to move your dot from the start to the finish which is teh orange square. Avoid touching the spikes to not get sent back to the start.
 
 ---
 
@@ -38,8 +22,8 @@ N/A
 
 ---
 
-## GenAI
+## References
 
-The code was written by Dr. Karen Cochrane and David Han but they used GenAI to write the comments.
+N/A
 
 ---
