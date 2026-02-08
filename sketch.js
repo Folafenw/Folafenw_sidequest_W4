@@ -25,10 +25,6 @@ function setup() {
   */
   levels = levelsData.levels.map((grid) => new Level(copyGrid(grid), TS));
 
-  // Generated levels
-  const procGrid = buildProceduralLevel (12, 18, 424242);
-  levels.push (new Level (copyGrid (procGrid), TS));
-  
   // Create a player.
   player = new Player(TS);
 
@@ -122,93 +118,4 @@ function copyGrid(grid) {
   - And we don’t want to accidentally mutate the raw JSON data object. 
   */
   return grid.map((row) => row.slice());
-}
-
-
-function buildProceduralLevel(rows, cols, seed = 12345) {
-  // Safety: minimum viable size with outer walls
-  rows = Math.max(rows, 7);
-  cols = Math.max(cols, 10);
-
-  // 1) Start with all walls
-  const G = Array.from({ length: rows }, () => Array(cols).fill(1));
-
-  // 2) Carve interior floors with a double loop
-  for (let r = 1; r < rows - 1; r++) {
-    for (let c = 1; c < cols - 1; c++) {
-      G[r][c] = 0; // floor
-    }
-  }
-
-  // 3) Place start & goal
-  const start = { r: 1, c: 1 };
-  const goal  = { r: rows - 2, c: cols - 2 };
-  G[start.r][start.c] = 2;
-  G[goal.r][goal.c] = 3;
-
-  // 4) Add some internal wall “pillars” using loops
-  //    (simple columns to create navigation choices)
-  for (let r = 2; r < rows - 2; r++) {
-    if (r % 2 === 0) {
-      const c1 = Math.floor(cols * 0.33);
-      const c2 = Math.floor(cols * 0.66);
-      G[r][c1] = 1;
-      G[r][c2] = 1;
-    }
-  }
-
-  // 5) Spike patterns with loops
-
-  // 5a) Checkerboard spikes in a band (every 2 tiles)
-  for (let r = 2; r < rows - 2; r++) {
-    for (let c = 2; c < cols - 2; c++) {
-      if ((r + c) % 2 === 0 && r >= Math.floor(rows * 0.35) && r <= Math.floor(rows * 0.65)) {
-        if (!isStartOrGoal(start, goal, r, c) && G[r][c] === 0) G[r][c] = 4;
-      }
-    }
-  }
-
-  // 5b) A vertical “spike line” on every 3rd column
-  for (let c = 3; c < cols - 3; c += 3) {
-    for (let r = 2; r < rows - 2; r++) {
-      if (!isStartOrGoal(start, goal, r, c) && G[r][c] === 0) G[r][c] = 4;
-    }
-  }
-
-  // 5c) Sprinkle some random spikes (deterministic with a seed)
-  const rnd = mulberry32(seed);
-  let sprinkled = Math.floor((rows * cols) * 0.08);
-  while (sprinkled > 0) {
-    const r = 1 + Math.floor(rnd() * (rows - 2));
-    const c = 1 + Math.floor(rnd() * (cols - 2));
-    if (!isStartOrGoal(start, goal, r, c) && G[r][c] === 0) {
-      G[r][c] = 4;
-      sprinkled--;
-    }
-  }
-
-  // Optional: ensure at least a horizontal corridor from start side
-  // (reduce frustration; keeps a guaranteed safe band)
-  const safeRow = start.r + 1;
-  for (let c = start.c; c < cols - 1; c++) {
-    if (!isStartOrGoal(start, goal, safeRow, c) && G[safeRow][c] !== 1) {
-      G[safeRow][c] = 0; // clear any spikes from this band
-    }
-  }
-
-  return G;
-}
-
-function isStartOrGoal(start, goal, r, c) {
-  return (r === start.r && c === start.c) || (r === goal.r && c === goal.c);
-}
-
-// Deterministic RNG for reproducible procedural levels
-function mulberry32(a) {
-  return function () {
-    let t = a += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
 }

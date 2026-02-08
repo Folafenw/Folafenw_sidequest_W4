@@ -8,6 +8,7 @@ Tile legend (from your original example):
 1 = wall
 2 = start
 3 = goal
+4 = spike
 
 Responsibilities:
 - Store the grid
@@ -71,6 +72,9 @@ class Level {
     return this.tileAt(r, c) === 3;
   }
 
+  isSpike (r, c) {
+    return this.tileAt (r, c) === 4;
+  }
   // ----- Start-finding -----
 
   findStart() {
@@ -121,6 +125,23 @@ class Level {
             6
           );
         }
+          if (v === 4) {
+            const x = c * this.ts;
+            const y = r * this.ts;
+            noStroke();
+            fill (255, 0, 0);
+
+            const teeth = 3;
+            const w = this.ts / teeth;
+            for (let i = 0; i < teeth; i++) {
+              const x0 = x + i * w;
+              triangle (
+                x0, y + this.ts,
+                x0 + w, y + this.ts,
+                x0 + w / 2, y + this.ts - this.ts * 0.65
+              );
+            }
+          }
       }
     }
   }
